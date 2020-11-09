@@ -31,24 +31,35 @@ app.get('/urls',(req,res)=>{
   res.render('urls_index',{urls:urlDatabase})
 });
 
+
+
 app.get('/urls/new',(req,res)=>{
   res.render('urls_new')
 });
 
 app.post('/urls',(req,res)=>{
-  console.log(req.body);
-  res.send('OK')
+  // console.log(req.body);
+ const longURL = req.body;
+ const shortURL = generateRandomString();
+ urlDatabase  = {longURL,shortURL};
+  res.redirect('/urls/:shortURL');
 })
-
-
 
 
 app.get('/urls/:shortURL',(req,res)=>{
   const shortURL = req.params.shortURL;
 const templateVariables = {shortURL:shortURL,longURL:urlDatabase[shortURL]};
-
 res.render('urls_show',templateVariables)
 });
+
+
+app.get('/u/:shortURL',(req,res)=>{
+  const shortURL = req.params.shortURL;
+  // console.log(req.params.shortURL);
+  const longURL = urlDatabase[shortURL];
+console.log(longURL);
+  res.redirect(longURL)
+})
 
 
 
