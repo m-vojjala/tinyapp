@@ -12,18 +12,25 @@ const urlDatabase = {
 app.get('/', (req,res) => {
   res.send('Hello!');
 });
+
 app.get('/urls.json',(req,res)=>{
 res.json(urlDatabase);
 });
 
 app.get('/urls',(req,res)=>{
-  const urlDatabase = {
-    "b2xVn2": "http://www.lighthouselabs.ca",
-    "9sm5xK": "http://www.google.com"
-  };
-  
+
   res.render('urls_index',{urls:urlDatabase})
-})
+});
+
+
+app.get('/urls/:shortURL',(req,res)=>{
+  const shortURL = req.params.shortURL;
+const templateVariables = {shortURL:shortURL,longURL:urlDatabase[shortURL]};
+
+res.render('urls_show',templateVariables)
+});
+
+
 app.get('/hello',(req,res)=>{
   res.send("<html><body>Hello <b>World</b></body></html>\n")
 });
