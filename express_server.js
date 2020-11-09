@@ -15,6 +15,15 @@ app.get('/', (req,res) => {
 app.get('/urls.json',(req,res)=>{
 res.json(urlDatabase);
 });
+
+app.get('/urls',(req,res)=>{
+  const urlDatabase = {
+    "b2xVn2": "http://www.lighthouselabs.ca",
+    "9sm5xK": "http://www.google.com"
+  };
+  
+  res.render('urls_index',{urls:urlDatabase})
+})
 app.get('/hello',(req,res)=>{
   res.send("<html><body>Hello <b>World</b></body></html>\n")
 });
