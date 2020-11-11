@@ -12,13 +12,14 @@
       </div>
       
     </div>
-    <% if(!username){ %>
-      <form action="/login" method="POST">
-        <input type="text" placeholder="Username" name="username"><button type="submit">Login</button>
+    <% console.log(userId) %>
+    <% if(userId){ %>
+      <form action="/logout" method="POST">
+        <span>Logged in As:</span><%= userId %><button>Logout</button>
       </form>
      <% } else {%>
-      <form action="/logout" method="POST">
-      <span>Logged in As:</span><%= username %><button>Logout</button>
+      <form action="/login" method="POST">
+      <input type="text" placeholder="Username" name="username"><button type="submit">Login</button>
     </form>
      <% } %>
   
