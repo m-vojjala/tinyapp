@@ -16,8 +16,16 @@ const addNewUser = function(db,email,password){
      password
    };
    db[userId] = newUser;
-   return userId;
+ return userId;
+  };
+
+  const checkUser = function(db,email){
+    for(const user in db){
+      if(db[user].email === email){
+      return db[user];
+      }
+    }
   }
    
 
-  module.exports = {addNewUser,generateRandomString,generateRandomId};
+  module.exports = {addNewUser,generateRandomString,generateRandomId,checkUser};

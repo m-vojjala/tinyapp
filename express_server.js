@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const app = express();
-const {addNewUser,generateRandomString,generateRandomId} = require('./helpers');
+const {addNewUser,generateRandomString,checkUser} = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -43,7 +43,8 @@ app.get('/urls',(req,res)=>{
   // console.log(req.cookies['username']);
 const key = req.cookies['user_id'];
 const userEmail = users[key].email;
-const templateVariables = {userId:userEmail,urls:urlDatabase}
+const templateVariables = {userId:userEmail,urls:urlDatabase};
+console.log(users);
   res.render('urls_index', templateVariables);
 });
 
@@ -52,8 +53,7 @@ app.get('/urls/new',(req,res)=>{
 });
 
 app.post('/urls',(req,res)=>{
-  //  console.log(req.body.longURL);
-  
+  //  console.log(req.body.longURL); 
  const shortURL = generateRandomString();
  urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
@@ -61,18 +61,22 @@ app.post('/urls',(req,res)=>{
 
 // Register route
 app.get('/register', (req,res) =>{
-  res.render("register",{userId:null});
+  res.render("register");
 });
 
 app.post('/register',(req,res) =>{
- const email = req.body.email;
- const password = req.body.password;
-
-const userId = addNewUser(users,email,password);
- res.cookie('user_id',userId);
-//  console.log(users);
+ const {email,password} = req.body;
+ if(email === "" || password === ""){
+   res.status(400).send("Error");
+ }
+ const checkUserInfo = checkUser(users,email)
+ if(!checkUserInfo){
+  const userId = addNewUser(users,email,password);
+  res.cookie('user_id',userId);
   res.redirect('/urls')
-
+ }else{
+  res.status(400).send("user exists");
+ }
 });
 
 // Login route
@@ -82,10 +86,10 @@ res.cookie("username",cookie);
 res.redirect('/urls')
 });
 
+// Logout route
 app.post('/logout',(req,res) =>{
-
 res.clearCookie('user_id');
-res.redirect('/urls')
+res.redirect('/register')
 })
 
 app.get('/urls/:shortURL',(req,res)=>{
