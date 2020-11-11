@@ -80,6 +80,11 @@ app.post('/register',(req,res) =>{
 });
 
 // Login route
+
+app.get('/login',(req,res) =>{
+  res.render('login');
+});
+
 app.post('/login',(req,res) =>{
 const cookie = req.body.username;
 res.cookie("username",cookie);
@@ -89,7 +94,7 @@ res.redirect('/urls')
 // Logout route
 app.post('/logout',(req,res) =>{
 res.clearCookie('user_id');
-res.redirect('/register')
+res.redirect('/login')
 })
 
 app.get('/urls/:shortURL',(req,res)=>{
