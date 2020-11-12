@@ -41,10 +41,15 @@ res.json(urlDatabase);
 
 app.get('/urls',(req,res)=>{
 const key = req.cookies['user_id'];
+if(key){
 const user = users[key];
- const templateVariables = {userId:user,urls:urlDatabase};
+ const userURLs = urlsForUser(urlDatabase,key);
+ const templateVariables = {userId:user,urls:userURLs};
   res.render('urls_index', templateVariables);
-});
+}else{
+  res.render('login',{userId:null})
+}
+ });
 
 app.get('/urls/new',(req,res)=>{
   let key = req.cookies['user_id'];
@@ -59,7 +64,8 @@ app.get('/urls/new',(req,res)=>{
 
 app.post('/urls',(req,res)=>{
  const shortURL = generateRandomString();
- urlDatabase[shortURL] = req.body.longURL;
+ const key = req.cookies['user_id'];
+ urlDatabase[shortURL] = {longURL:req.body.longURL,userID:key};
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -112,15 +118,27 @@ res.clearCookie('user_id');
 res.redirect('/urls');
 });
 
-app.get('/urls/:shortURL',(req,res)=>{
-const templateVariables = {userId:req.cookies['user_id'],longURL:urlDatabase[req.params.shortURL],shortURL:req.params.shortURL};
+app.get('/urls/:id',(req,res)=>{
+  let key = req.cookies['user_id']
+  if(key){
+  const user = users[key];
+  const userURLs = urlsForUser(urlDatabase,key);
+  const shortURL =req.params.id;
+  const longURL = userURLs[shortURL].longURL;
+  console.log(longURL);
+const templateVariables = {userId:user,longURL,shortURL};
 res.render('urls_show',templateVariables)
+  }else{
+    res.render('login',{userId:null})
+  }
 });
 
 app.post('/urls/:id',(req,res) =>{
+  let key = req.cookies['user_id']
  const shortURL = req.params.id;
  const longURL = req.body.longURL;
- urlDatabase[shortURL] = longURL;
+ urlDatabase[shortURL] = {longURL,userID:key};
+ console.log(urlDatabase);
 res.redirect('/urls');
 });
 
