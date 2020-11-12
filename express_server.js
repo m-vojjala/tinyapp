@@ -1,8 +1,15 @@
 const express = require('express');
 const bodyParser = require("body-parser");
+const cookieSession = require('cookie-session')
 const app = express();
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2'],
+  })
+);
+
+
 const {addNewUser,generateRandomString,checkUser,checkUserAuth,urlsForUser} = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -31,7 +38,7 @@ res.json(urlDatabase);
 });
 
 app.get('/urls',(req,res)=>{
-const key = req.cookies['user_id'];
+const key = req.session.user_id;
 if(key){
 const user = users[key];
  const userURLs = urlsForUser(urlDatabase,key);
@@ -44,7 +51,7 @@ const user = users[key];
  });
 
 app.get('/urls/new',(req,res)=>{
-  let key = req.cookies['user_id'];
+  let key = req.session.user_id
    let user = users[key];
      const templateVariables = {userId:user};
   if(key){
@@ -56,14 +63,14 @@ app.get('/urls/new',(req,res)=>{
 
 app.post('/urls',(req,res)=>{
  const shortURL = generateRandomString();
- const key = req.cookies['user_id'];
+ const key = req.session.user_id;
  urlDatabase[shortURL] = {longURL:req.body.longURL,userID:key};
   res.redirect(`/urls/${shortURL}`);
 });
 
 // Register route
 app.get('/register', (req,res) =>{
- const key = req.cookies['user_id'];
+ const key = req.session.user_id;
   const user = users[key];
   const templateVariables = {userId:user}
   res.render("register",templateVariables);
@@ -77,7 +84,7 @@ app.post('/register',(req,res) =>{
  const checkUserInfo = checkUser(users,email)
  if(!checkUserInfo){
   const userId = addNewUser(users,email,password);
-  res.cookie('user_id',userId);
+  req.session['user_id']= userId;
   res.redirect('/urls')
  }else{
   res.sendStatus(400);
@@ -86,7 +93,7 @@ app.post('/register',(req,res) =>{
 
 // Login route
 app.get('/login',(req,res) =>{
-  const key = req.cookies['user_id'];
+  const key = req.session.user_id;
  const user = users[key];
  const templateVariables = {userId:user};
   res.render('login',templateVariables);
@@ -94,24 +101,23 @@ app.get('/login',(req,res) =>{
 
 app.post('/login',(req,res) =>{
 const {email,password} = req.body;
-const checkUserAuthInfo = checkUserAuth(users,email,password)
-if(checkUserAuthInfo.error){
- res.sendStatus(403);
+const checkUserAuthentication = checkUserAuth(users,email,password)
+if(checkUserAuthentication.user){
+ req.session['user_id'] = user.id;
+ res.redirect('/urls');
 }else{
-  const user = checkUser(users,email);
-res.cookie('user_id',user.id);
-res.redirect('/urls');
+ res.sendStatus(401);
 }
 });
 
 // Logout route
 app.post('/logout',(req,res) =>{
-res.clearCookie('user_id');
+  req.session = null;
 res.redirect('/urls');
 });
 
 app.get('/urls/:id',(req,res)=>{
-  let key = req.cookies['user_id']
+  let key = req.session.user_id;
   if(key){
   const user = users[key];
   const userURLs = urlsForUser(urlDatabase,key);
@@ -126,7 +132,7 @@ res.render('urls_show',templateVariables)
 });
 
 app.post('/urls/:id',(req,res) =>{
-  let key = req.cookies['user_id']
+  let key = req.session.user_id;
  const shortURL = req.params.id;
  const longURL = req.body.longURL;
  urlDatabase[shortURL] = {longURL,userID:key};
