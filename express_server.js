@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const app = express();
-const {addNewUser,generateRandomString,checkUser} = require('./helpers');
+const {addNewUser,generateRandomString,checkUser,checkUserAuth} = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -40,16 +40,18 @@ res.json(urlDatabase);
 });
 
 app.get('/urls',(req,res)=>{
-  // console.log(req.cookies['username']);
 const key = req.cookies['user_id'];
-const userEmail = users[key].email;
-const templateVariables = {userId:userEmail,urls:urlDatabase};
+const user = users[key];
+const templateVariables = {userId:user,urls:urlDatabase};
 console.log(users);
   res.render('urls_index', templateVariables);
 });
 
 app.get('/urls/new',(req,res)=>{
-  res.render('urls_new')
+  const key = req.cookies['user_id'];
+  const user = users[key];
+ const templateVariables = {userId:user}
+  res.render('urls_new',templateVariables)
 });
 
 app.post('/urls',(req,res)=>{
@@ -61,7 +63,10 @@ app.post('/urls',(req,res)=>{
 
 // Register route
 app.get('/register', (req,res) =>{
-  res.render("register");
+ const key = req.cookies['user_id'];
+  const user = users[key];
+  const templateVariables = {userId:user}
+  res.render("register",templateVariables);
 });
 
 app.post('/register',(req,res) =>{
@@ -82,13 +87,24 @@ app.post('/register',(req,res) =>{
 // Login route
 
 app.get('/login',(req,res) =>{
-  res.render('login');
+  const key = req.cookies['user_id'];
+ const user = users[key];
+ const templateVariables = {userId:user}
+  res.render('login',templateVariables);
 });
 
 app.post('/login',(req,res) =>{
-const cookie = req.body.username;
-res.cookie("username",cookie);
-res.redirect('/urls')
+const {email,password} = req.body;
+const checkUserAuthInfo = checkUserAuth(users,email,password)
+if(checkUserAuthInfo.error){
+  // console.log(checkUserAuthInfo.error);
+ res.status(403).send(checkUserAuthInfo.error);
+}else{
+  const user = checkUser(users,email);
+res.cookie('user_id',user.id);
+res.redirect('/urls');
+}
+
 });
 
 // Logout route

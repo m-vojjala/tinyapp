@@ -19,6 +19,19 @@ const addNewUser = function(db,email,password){
  return userId;
   };
 
+  const checkUserAuth = function(db,email,password){
+    for(const user in db){
+      if(email === db[user].email){
+        if(password === db[user].password){
+          return {error:null,user}
+        }else{
+          return {error:password,user:null}
+        }
+    }
+  }
+    return {error:email,user:null};
+  }
+
   const checkUser = function(db,email){
     for(const user in db){
       if(db[user].email === email){
@@ -28,4 +41,4 @@ const addNewUser = function(db,email,password){
   }
    
 
-  module.exports = {addNewUser,generateRandomString,generateRandomId,checkUser};
+  module.exports = {addNewUser,generateRandomString,generateRandomId,checkUser,checkUserAuth};
