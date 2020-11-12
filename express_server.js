@@ -10,7 +10,7 @@ app.use(
 );
 
 
-const {addNewUser,generateRandomString,checkUser,checkUserAuth,urlsForUser} = require('./helpers');
+const {addNewUser,generateRandomString,getUserByEmail,checkUserAuth,urlsForUser} = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -81,7 +81,7 @@ app.post('/register',(req,res) =>{
  if(email === "" || password === ""){
    res.sendStatus(400);
  }
- const checkUserInfo = checkUser(users,email)
+ const checkUserInfo = getUserByEmail(users,email)
  if(!checkUserInfo){
   const userId = addNewUser(users,email,password);
   req.session['user_id']= userId;

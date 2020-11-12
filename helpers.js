@@ -35,13 +35,14 @@ const addNewUser = function(db,email,password){
     return {error:email,user:null};
   }
 
-  const checkUser = function(db,email){
+  const getUserByEmail = function(db,email){
     for(const user in db){
       if(db[user].email === email){
       return db[user];
       }
     }
-  }
+  };
+
   const urlsForUser = function(db,id){
     const URLs ={}
     for(let shortURL in db){
@@ -56,4 +57,4 @@ const addNewUser = function(db,email,password){
 
   
 
-  module.exports = {addNewUser,generateRandomString,generateRandomId,checkUser,checkUserAuth,urlsForUser};
+  module.exports = {addNewUser,generateRandomString,generateRandomId,getUserByEmail,checkUserAuth,urlsForUser};
