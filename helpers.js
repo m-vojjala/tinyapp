@@ -39,6 +39,16 @@ const addNewUser = function(db,email,password){
       }
     }
   }
+
+  const urlsForUser = function(db,id){
+    const URLs ={}
+    for(let shortURL in db){
+      if(db[shortURL].userID === id){
+        URLs[db[shortURL].userID] = id;
+        return URLs;
+      }
+    }
+  }
    
 
-  module.exports = {addNewUser,generateRandomString,generateRandomId,checkUser,checkUserAuth};
+  module.exports = {addNewUser,generateRandomString,generateRandomId,checkUser,checkUserAuth,urlsForUser};
