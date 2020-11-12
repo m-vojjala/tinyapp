@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const app = express();
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 const {addNewUser,generateRandomString,checkUser,checkUserAuth,urlsForUser} = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -18,18 +20,7 @@ const urlDatabase = {
   "9sm5xK": {longURL:"http://www.google.com",userID: "1"}
 };
 
-let users = { 
-  1: {
-    id: 1, 
-    email: "bob@y.com", 
-    password: "purple-monkey-dinosaur"
-  },
- 2: {
-    id: 2, 
-    email: "Alice@y.com", 
-    password: "dishwasher-funk"
-  }
-}
+let users = {};
 
 app.get('/', (req,res) => {
   res.send('Hello!');
@@ -44,6 +35,7 @@ const key = req.cookies['user_id'];
 if(key){
 const user = users[key];
  const userURLs = urlsForUser(urlDatabase,key);
+ console.log(users);
  const templateVariables = {userId:user,urls:userURLs};
   res.render('urls_index', templateVariables);
 }else{
