@@ -45,7 +45,6 @@ app.get('/urls',(req,res)=>{
   if (key) {
     const user = users[key];
     const userURLs = urlsForUser(urlDatabase,key);
-    console.log(users);
     const templateVariables = {userId:user,urls:userURLs};
     res.render('urls_index', templateVariables);
   } else {
@@ -76,9 +75,13 @@ app.get('/urls/new',(req,res)=>{
 // gets the register page
 app.get('/register', (req,res) =>{
   const key = req.session.user_id;
-  const user = users[key];
-  const templateVariables = {userId:user};
-  res.render("register",templateVariables);
+  if (key) {
+    res.redirect('/urls');
+  } else {
+    const user = users[key];
+    const templateVariables = {userId:user};
+    res.render("register",templateVariables);
+  }
 });
 
 // registers the user
@@ -132,7 +135,6 @@ app.get('/urls/:id',(req,res)=>{
     const userURLs = urlsForUser(urlDatabase,key);
     const shortURL = req.params.id;
     const longURL = userURLs[shortURL].longURL;
-    console.log(longURL);
     const templateVariables = {userId:user,longURL,shortURL};
     res.render('urls_show',templateVariables);
   } else {
@@ -163,16 +165,16 @@ app.post('/urls/:shortURL/delete',(req,res) => {
 // redirects to longURL(webpage)
 app.get('/u/:id',(req,res)=>{
   let key = req.session.user_id;
-  if(key){
-  const id = req.params.id;
-  if(urlDatabase[id]){
-  const longURL = urlDatabase[id].longURL;
-  res.redirect(longURL);
-  }else{
-    res.sendStatus(500);
+  if (key) {
+    const id = req.params.id;
+    if (urlDatabase[id]) {
+      const longURL = urlDatabase[id].longURL;
+      res.redirect(longURL);
+    } else {
+      res.sendStatus(500);
+    }
   }
-}
-res.sendStatus(403);
+  res.sendStatus(403);
 
 });
 
