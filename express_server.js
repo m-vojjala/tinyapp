@@ -75,13 +75,10 @@ app.get('/urls/new',(req,res)=>{
 // gets the register page
 app.get('/register', (req,res) =>{
   const key = req.session.user_id;
-  if (key) {
-    res.redirect('/urls');
-  } else {
     const user = users[key];
     const templateVariables = {userId:user};
     res.render("register",templateVariables);
-  }
+  
 });
 
 // registers the user
