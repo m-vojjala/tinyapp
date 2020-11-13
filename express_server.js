@@ -162,9 +162,18 @@ app.post('/urls/:shortURL/delete',(req,res) => {
 
 // redirects to longURL(webpage)
 app.get('/u/:id',(req,res)=>{
+  let key = req.session.user_id;
+  if(key){
   const id = req.params.id;
+  if(urlDatabase[id]){
   const longURL = urlDatabase[id].longURL;
   res.redirect(longURL);
+  }else{
+    res.sendStatus(500);
+  }
+}
+res.sendStatus(403);
+
 });
 
 app.listen(port,()=>{
